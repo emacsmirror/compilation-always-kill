@@ -3,7 +3,7 @@
 ;; Copyright 2008, 2009, 2010 Kevin Ryde
 
 ;; Author: Kevin Ryde <user42@zip.com.au>
-;; Version: 3
+;; Version: 4
 ;; Keywords: processes
 ;; EmacsWiki: CompilationMode
 ;; URL: http://user42.tuxfamily.org/compilation-always-kill/index.html
@@ -58,6 +58,7 @@
 ;; Version 1 - the first version
 ;; Version 2 - new home page
 ;; Version 3 - undo defadvice on unload-feature
+;; Version 4 - defang defadvice for emacs21,xemacs21 unload-feature
 
 
 ;;; Code:
@@ -109,12 +110,17 @@ out the conditions where a query is no longer applicable."
 
 (defadvice yes-or-no-p (around compilation-always-kill activate)
   "Minor mode for `compile' to always kill existing compilation."
-  (if (and compilation-always-kill-mode
+  (if (and (boundp 'compilation-always-kill-mode) ;; in case `unload-feature'
+           compilation-always-kill-mode
            (string-match "A compilation process is running; kill it\\?"
                          prompt))
       (setq ad-return-value t)
     ad-do-it))
 
+;; `-unload-function' only runs in emacs22 up, so the defadvice is made
+;; harmless when everything else unloaded in emacs21 and xemacs21.
+;; Removing the advice is good as a cleanup though.
+;;
 (defun compilation-always-kill-unload-function ()
   (when (ad-find-advice 'yes-or-no-p 'around 'compilation-always-kill)
     (ad-remove-advice   'yes-or-no-p 'around 'compilation-always-kill)
