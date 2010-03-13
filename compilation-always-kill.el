@@ -3,7 +3,7 @@
 ;; Copyright 2008, 2009, 2010 Kevin Ryde
 
 ;; Author: Kevin Ryde <user42@zip.com.au>
-;; Version: 4
+;; Version: 5
 ;; Keywords: processes
 ;; EmacsWiki: CompilationMode
 ;; URL: http://user42.tuxfamily.org/compilation-always-kill/index.html
@@ -59,9 +59,14 @@
 ;; Version 2 - new home page
 ;; Version 3 - undo defadvice on unload-feature
 ;; Version 4 - defang defadvice for emacs21,xemacs21 unload-feature
+;; Version 5 - express dependency on 'advice
 
 
 ;;; Code:
+
+;; for `ad-find-advice' macro when running uncompiled
+;; (don't unload 'advice before our -unload-function)
+(require 'advice)
 
 ;;;###autoload
 (define-minor-mode compilation-always-kill-mode
