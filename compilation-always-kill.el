@@ -1,12 +1,12 @@
 ;;; compilation-always-kill.el --- kill compilation without prompting
 
-;; Copyright 2008, 2009, 2010 Kevin Ryde
+;; Copyright 2008, 2009, 2010, 2015 Kevin Ryde
 
-;; Author: Kevin Ryde <user42@zip.com.au>
-;; Version: 5
-;; Keywords: processes
-;; EmacsWiki: CompilationMode
+;; Author: Kevin Ryde <user42_kevin@yahoo.com.au>
+;; Version: 6
+;; Keywords: processes, compilation
 ;; URL: http://user42.tuxfamily.org/compilation-always-kill/index.html
+;; EmacsWiki: CompilationMode
 
 ;; compilation-always-kill.el is free software; you can redistribute it
 ;; and/or modify it under the terms of the GNU General Public License as
@@ -60,12 +60,14 @@
 ;; Version 3 - undo defadvice on unload-feature
 ;; Version 4 - defang defadvice for emacs21,xemacs21 unload-feature
 ;; Version 5 - express dependency on 'advice
+;; Version 6 - new email
 
 
 ;;; Code:
 
-;; for `ad-find-advice' macro when running uncompiled
-;; (don't unload 'advice before our -unload-function)
+;; Explicit dependency on advice.el since
+;; `compilation-always-kill-unload-function' needs `ad-find-advice' macro
+;; when running not byte compiled, and that macro is not autoloaded.
 (require 'advice)
 
 ;;;###autoload
@@ -127,10 +129,14 @@ out the conditions where a query is no longer applicable."
 ;; Removing the advice is good as a cleanup though.
 ;;
 (defun compilation-always-kill-unload-function ()
+  "Remove advice from `yes-or-no-p'.
+This is called by `unload-feature'."
   (when (ad-find-advice 'yes-or-no-p 'around 'compilation-always-kill)
     (ad-remove-advice   'yes-or-no-p 'around 'compilation-always-kill)
     (ad-activate        'yes-or-no-p))
   nil) ;; and do normal unload-feature actions too
+
+;; LocalWords: docstring
 
 (provide 'compilation-always-kill)
 
